@@ -8,6 +8,12 @@ from bs4 import BeautifulSoup
 import pandas as pd
 from sqlalchemy import create_engine
 import time as t
+import yaml
+
+# extract parameter from config.yaml
+with open('config.yaml', 'r') as f:
+    config_dict = yaml.full_load(f)
+
 
 
 # According to the given url, Parse_Mobile01 will return the parse dataframe,
@@ -119,7 +125,7 @@ def Parse_Mobile01(uri):
 # Main
 if __name__ == "__main__":
     # Scrapping mobile01 page by page
-    for i in range(1, 21):
+    for i in range(config_dict['scraper_config']['start_page'], config_dict['scraper_config']['end_page']):
         print("=================== PAGE {} ===================".format(i))
 
         url_str = "https://www.mobile01.com/forumtopic.php?c=23&p=" + str(i)
@@ -128,21 +134,43 @@ if __name__ == "__main__":
         if i == 1:
             mobile01_df = temp_df
         else:
-            mobile01_df = mobile01_df.append(temp_df, ignore_index=True)
+            mobile01_df = pd.concat([mobile01_df, temp_df])
         t.sleep(3)
 
     print(mobile01_df)
 
     # Input data into DB
-    # TODO: change to update > https://stackoverflow.com/questions/31988322/pandas-update-sql
     try:
-        engine = create_engine("mysql+pymysql://{user}:{pw}@localhost:3306/{db}"
-                               .format(user="test_user",
-                                       pw="HollyHsiao89!",
-                                       db="test"))
+        engine = create_engine("mysql+pymysql://{user}:{pw}@{network}:3306/{db}"
+                               .format(user = config_dict['db_config']['db_username'],
+                                       pw = config_dict['db_config']['db_password'],
+                                       network = "localhost",
+                                       db = config_dict['db_config']['db']))
 
         mobile01_df.set_index('article_id', inplace=True)
-        mobile01_df.to_sql('mobile01', con=engine, if_exists='replace', chunksize=100000)
+        try:
+            # if it's the first time of ingestion (mobile01 table doesn't exist)
+            mobile01_df.to_sql('mobile01', con=engine, if_exists='fail', chunksize=100000)
+        except:
+            mobile01_df.to_sql('temp_table', con=engine, if_exists='replace', chunksize=100000)
+
+            insert_sql = """
+                INSERT INTO mobile01 
+                (SELECT * FROM temp_table 
+                WHERE article_id NOT IN 
+                (SELECT article_id from mobile01))
+            """
+
+            update_sql = """
+                UPDATE mobile01 AS m, temp_table AS t
+                SET m.feedback = t.feedback
+                WHERE m.article_id = t.article_id
+            """
+
+            with engine.begin() as conn:
+                conn.execute(insert_sql)
+                conn.execute(update_sql)
+            
         print("Successfully insert into DB !")
 
     except Exception as e:

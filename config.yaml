@@ -1,0 +1,8 @@
+scraper_config: 
+  start_page: 1 
+  end_page: 21
+
+db_config:
+  db: "test"
+  db_username: "test_user"
+  db_password: "HollyHsiao89!"
