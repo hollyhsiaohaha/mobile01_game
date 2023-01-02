@@ -11,7 +11,6 @@ db = SQLAlchemy()
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-# app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://test_user:HollyHsiao89!@127.0.0.1:3306/test"
 app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://test_user:HollyHsiao89!@mysql8:3306/test"
 
 db.init_app(app)
@@ -80,5 +79,3 @@ def show_post(input_article_id):
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
-
-# TODO: Docker-compose

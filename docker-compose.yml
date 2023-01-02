@@ -1,0 +1,19 @@
+version: "3"
+services: 
+ mysql8:
+  image: mysql/mysql-server:8.0
+  ports:
+    - 3306:3306
+  environment:
+    MYSQL_ROOT_PASSWORD: root
+  volumes:
+    - ./mysql:/var/lib/mysql
+
+ mobile01_game_api:
+  build: ./flask-app
+  ports:
+   - 5000:5000
+  depends_on:
+   - mysql8
+  links:
+   - mysql8

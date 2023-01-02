@@ -121,10 +121,8 @@ def Parse_Mobile01(uri):
     result_df['creat_timestamp'] = pd.to_datetime(result_df['creat_timestamp'], format='%Y-%m-%d %H:%M')
     return (result_df)
 
-
-# Main
-if __name__ == "__main__":
-    # Scrapping mobile01 page by page
+def Mobile01_Scraper():
+    # Scraping mobile01 page by page
     for i in range(config_dict['scraper_config']['start_page'], config_dict['scraper_config']['end_page']):
         print("=================== PAGE {} ===================".format(i))
 
@@ -176,4 +174,8 @@ if __name__ == "__main__":
     except Exception as e:
         print("Error! >>" + (e))
 
-# TODO: Airflow> Daily
+
+# Main
+if __name__ == "__main__":
+    Mobile01_Scraper()
+# TODO: Airflow> Daily : https://towardsdatascience.com/setting-up-apache-airflow-with-docker-compose-in-5-minutes-56a1110f4122
