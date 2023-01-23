@@ -9,6 +9,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 import time as t
 import yaml
+import ssl
 
 # extract parameter from config.yaml
 with open('config.yaml', 'r') as f:
@@ -27,8 +28,8 @@ def Parse_Mobile01(uri):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
         }
     )
-
-    handle = urllib.request.urlopen(req)
+    context = ssl._create_unverified_context()
+    handle = urllib.request.urlopen(req, context=context)
     encoding = handle.headers.get_content_charset()
     html_data = handle.read().decode(encoding)
 
