@@ -1,5 +1,7 @@
 # Mobile01 Game
 
+本專案為 Trainee Program 之結業 Side project。應用自學之工具建置 ETL 流程。
+
 ## 專案目的
 此專案爬取 mobile01 遊戲版的文章資訊，再將資料儲存於資料庫。並提供 API ，讓使用者可以輕鬆查詢遊戲論壇最新資訊。
 ## 架構
